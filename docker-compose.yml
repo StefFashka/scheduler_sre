@@ -1,7 +1,4 @@
 services:
-  # ============================================================================
-  # 1. PostgreSQL Database Service
-  # ============================================================================
   postgres:
     image: postgres:16-alpine
     container_name: uchebny-radar-postgres
@@ -22,9 +19,6 @@ services:
     networks:
       - db_backend_net
 
-  # ============================================================================
-  # 2. Backend REST API Service
-  # ============================================================================
   backend-api:
     build:
       context: ./backend
@@ -34,7 +28,7 @@ services:
     ports:
       - "${SERVER_PORT:-8080}:${SERVER_PORT:-8080}"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-uchebny_radar}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:postgresql://postgres:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-uchebny_radar}}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       APP_ROLE: api
@@ -49,9 +43,7 @@ services:
       - db_backend_net
       - frontend_public_net
 
-  # ============================================================================
-  # 3. Reminder Worker Service (Background Task Processing)
-  # ============================================================================
+
   backend-worker:
     build:
       context: ./backend
@@ -59,7 +51,7 @@ services:
     container_name: uchebny-radar-backend-worker
     restart: unless-stopped
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-uchebny_radar}
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:postgresql://postgres:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-uchebny_radar}}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       APP_ROLE: worker
@@ -71,9 +63,7 @@ services:
     networks:
       - db_backend_net
 
-  # ============================================================================
-  # 4. Frontend SPA Service (Nginx)
-  # ============================================================================
+
   frontend:
     build:
       context: ./frontend
@@ -87,9 +77,7 @@ services:
     networks:
       - frontend_public_net
 
-  # ============================================================================
-  # 5. Prometheus Monitoring Service (Lightweight Stub)
-  # ============================================================================
+
   prometheus:
     image: alpine:latest
     container_name: uchebny-radar-prometheus
@@ -102,9 +90,7 @@ services:
     networks:
       - frontend_public_net
 
-  # ============================================================================
-  # 6. Grafana Dashboard Service (Lightweight Stub)
-  # ============================================================================
+
   grafana:
     image: alpine:latest
     container_name: uchebny-radar-grafana
@@ -120,20 +106,14 @@ services:
     networks:
       - frontend_public_net
 
-# ==============================================================================
-# Isolated Networks Configuration
-# ==============================================================================
+
 networks:
-  # Isolated database network: Accessible ONLY by postgres, backend-api, backend-worker
   db_backend_net:
     driver: bridge
 
-  # Public/Application network: Accessible by frontend, backend-api, and monitoring
   frontend_public_net:
     driver: bridge
 
-# ==============================================================================
-# Persistent Volumes Configuration
-# ==============================================================================
+
 volumes:
   postgres_data:

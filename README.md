@@ -1,0 +1,59 @@
+# Учебный радар
+
+## 1. Доменная область
+
+Веб-приложение «Учебный радар» предназначено для планирования учебных проектов и контроля сроков сдачи академических задач. Система обеспечивает учет дедлайнов с автоматическим выделением трех ближайших невыполненных задач, фиксацией просрочек и генерацией фоновых напоминаний по заданному времени. Конечными пользователями системы являются учащиеся, студенты и разработчики, ведущие персональные учебные планы.
+
+## 2. Стек реализации
+
+* **Backend:** Java 21 (Eclipse Temurin JRE Alpine), Spring Boot 3.3.4, Spring Data JPA, Hibernate, Spring Security 6, Spring Session JDBC, Flyway, PostgreSQL Driver, Spring Boot Actuator, Micrometer Prometheus, SpringDoc OpenAPI 2.6.0.
+* **Frontend:** React 19, TypeScript, Vite, Tailwind CSS, DaisyUI, Lucide React, React Router DOM v7, concurrently.
+* **База данных:** PostgreSQL 16 Alpine, HikariCP, персистентный Docker-том `postgres_data`.
+* **Безопасность:** Хэширование BCrypt, серверные HTTP-сессии в БД (`SPRING_SESSION`), cookie с флагами `HttpOnly` и `SameSite=Lax`, защита от фиксации сессий (`changeSessionId`), CSRF-токены (`GET /api/auth/csrf`, заголовок `X-CSRF-TOKEN`), межпользовательская изоляция по `owner_user_id`.
+* **Инфраструктура:** Docker, Docker Compose, изолированные сети `db_backend_net` и `frontend_public_net`, multi-stage Dockerfile с Layered Jars (`dependencies`, `spring-boot-loader`, `snapshot-dependencies`, `application`), non-root пользователь `appuser`, Nginx Alpine.
+
+## 3. Основные сущности
+
+* **User:** `id`, `name`, `password_hash`, `created_at`, `updated_at` - субъект аутентификации; связан отношением 1:N с сущностями `Project` (владелец) и `Notification` (получатель), каскадное удаление `ON DELETE CASCADE`.
+* **Project:** `id`, `owner_user_id`, `name`, `description`, `status`, `created_at`, `updated_at` - проект пользователя; связан через внешний ключ `owner_user_id` с таблицей `users` (N:1) и отношением 1:N с сущностью `Task`, каскадное удаление `ON DELETE CASCADE`.
+* **Task:** `id`, `project_id`, `title`, `description`, `status`, `priority`, `due_at`, `remind_at`, `reminder_sent_at`, `created_at`, `updated_at` - задача проекта; связана через внешний ключ `project_id` с таблицей `projects` (N:1) и отношением 1:1 с `Notification` через ограничение `UNIQUE(task_id)`, каскадное удаление `ON DELETE CASCADE`.
+* **Notification:** `id`, `recipient_user_id`, `task_id`, `title`, `created_at`, `read_at` - системное напоминание; связано через внешний ключ `recipient_user_id` с таблицей `users` (N:1) и уникальным внешним ключом `task_id` с таблицей `tasks` (1:1), каскадное удаление `ON DELETE CASCADE`.
+* **Spring Session (`SPRING_SESSION`, `SPRING_SESSION_ATTRIBUTES`):** `PRIMARY_ID`, `SESSION_ID`, `CREATION_TIME`, `LAST_ACCESS_TIME`, `MAX_INACTIVE_INTERVAL`, `EXPIRY_TIME`, `PRINCIPAL_NAME`, `ATTRIBUTE_NAME`, `ATTRIBUTE_BYTES` - хранилище HTTP-сессий в PostgreSQL; связано отношением 1:N между таблицами сессии и атрибутов по `SESSION_PRIMARY_ID` с каскадным удалением `ON DELETE CASCADE`.
+
+## 4. Методология 12 факторов
+
+1. **I. Кодовая база (Codebase): Соответствует.**
+   Обоснование: Исходный код бэкенда (`backend/`), фронтенда (`frontend/`) и конфигураций развертывания (`docker-compose.yml`) хранится в едином Git-репозитории, из которого формируются все типы окружений (dev, test, prod).
+
+2. **II. Зависимости (Dependencies): Соответствует.**
+   Обоснование: Зависимости бэкенда задекларированы в `backend/pom.xml`, фронтенда в `frontend/package.json`. Системные зависимости изолированы внутри Docker-контейнеров на базе Alpine Linux.
+
+3. **III. Конфигурация (Config): Соответствует.**
+   Обоснование: Конфигурационные параметры и учетные данные передаются через переменные окружения (`POSTGRES_USER`, `POSTGRES_PASSWORD`, `SERVER_PORT`, `CORS_ALLOWED_ORIGINS`) и подставляются в `backend/src/main/resources/application.yml` через Spring-плейсхолдеры. Файл `.env` исключен из системы контроля версий правилом в `.gitignore`.
+
+4. **IV. Сторонние сервисы (Backing Services): Соответствует.**
+   Обоснование: СУБД PostgreSQL подключается как сетевой ресурс через переменную `SPRING_DATASOURCE_URL` без привязки к конкретному хосту. Приложение не различает локальный контейнер и внешнюю управляемую СУБД, переключение осуществляется изменением строки подключения.
+
+5. **V. Сборка, релиз, запуск (Build, Release, Run): Соответствует.**
+   Обоснование: Стадии строго разделены с помощью multi-stage Dockerfile: этап сборки компилирует код и извлекает слои приложения (`java -Djarmode=tools`), этап релиза объединяет бинарные артефакты с переменными окружения, а этап запуска выполняет неизменяемый OCI-образ (`docker compose up`). Изменение исходного кода во время выполнения запрещено.
+
+6. **VI. Процессы (Processes): Соответствует.**
+   Обоснование: Сервисы `backend-api` и `backend-worker` исполняются как процессы без сохранения состояния (stateless), не сохраняя пользовательские данные на диск контейнера. Сессии пользователей вынесены в таблицы `SPRING_SESSION` в PostgreSQL через Spring Session JDBC.
+
+7. **VII. Привязка портов (Port Binding): Соответствует.**
+   Обоснование: Бэкенд является self-contained сервисом со встроенным сервером Tomcat, слушающим порт из переменной `SERVER_PORT` (`application.yml`). Фронтенд раздается веб-сервером Nginx, слушающим порт `80` (`frontend/nginx.conf`).
+
+8. **VIII. Параллелизм (Concurrency): Соответствует.**
+   Обоснование: Масштабирование реализовано через запуск независимых процессов разного назначения: HTTP API обрабатывается сервисом `backend-api` (`APP_ROLE=api`), а фоновые напоминания выполняет воркер `backend-worker` (`APP_ROLE=worker`, класс `ReminderWorker.java`).
+
+9. **IX. Утилизируемость (Disposability): Соответствует.**
+   Обоснование: В `application.yml` включен graceful shutdown (`server.shutdown: graceful`, таймаут 30 секунд), а в `backend/Dockerfile` команда `exec` транслирует сигнал `SIGTERM` напрямую в JVM с PID 1 для безаварийного завершения запросов. Nginx во фронтенд-контейнере настроен на сброс соединений по `STOPSIGNAL SIGQUIT`.
+
+10. **X. Паритет окружений (Dev/Prod Parity): Соответствует.**
+    Обоснование: Во всех средах (локальная разработка, продакшен) используется идентичная СУБД `postgres:16-alpine` с одинаковым набором миграций Flyway (`V1__`–`V5__`).
+
+11. **XI. Логирование (Logs): Соответствует.**
+    Обоснование: Сервисы не управляют файлами логов и транслируют события исключительно в виде потока текста в `stdout`/`stderr` по шаблону из `application.yml`. Захват, ротация и агрегация потока логов делегированы среде исполнения Docker.
+
+12. **XII. Административные задачи (Admin Processes): Соответствует.**
+    Обоснование: Миграции схемы данных запускаются как разовые процессы инструментом Flyway из единой кодовой базы (`backend/src/main/resources/db/migration/`) с теми же переменными подключения к БД.
