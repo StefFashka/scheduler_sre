@@ -2,16 +2,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend
+  name: backend-worker
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: backend
+      app: backend-worker
   template:
     metadata:
       labels:
-        app: backend
+        app: backend-worker
     spec:
       containers:
         - name: backend
@@ -29,6 +29,11 @@ spec:
                 configMapKeyRef:
                   name: uchebny-radar-config
                   key: SPRING_DATASOURCE_URL
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: uchebny-radar-config
+                  key: POSTGRES_USER
             - name: SPRING_DATASOURCE_PASSWORD
               valueFrom:
                 secretKeyRef:

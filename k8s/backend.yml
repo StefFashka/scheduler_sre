@@ -28,6 +28,11 @@ spec:
                 configMapKeyRef:
                   name: uchebny-radar-config
                   key: SPRING_DATASOURCE_URL
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: uchebny-radar-config
+                  key: POSTGRES_USER
             - name: SPRING_DATASOURCE_PASSWORD
               valueFrom:
                 secretKeyRef:
