@@ -1,34 +1,36 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend
+  name: postgres
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: backend
+      app: postgres
   template:
     metadata:
       labels:
-        app: backend
+        app: postgres
     spec:
       containers:
-        - name: backend
-          image: uchebny-radar-backend:latest
+        - name: postgres
+          image: postgres:16-alpine
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 8080
+            - containerPort: 5432
           env:
-            - name: APP_ROLE
-              value: "api"
-            - name: APP_WORKER_ENABLED
-              value: "false"
-            - name: SPRING_DATASOURCE_URL
+            - name: POSTGRES_DB
               valueFrom:
                 configMapKeyRef:
                   name: uchebny-radar-config
-                  key: SPRING_DATASOURCE_URL
-            - name: SPRING_DATASOURCE_PASSWORD
+                  key: POSTGRES_DB
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: uchebny-radar-config
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: uchebny-radar-secret
@@ -37,11 +39,11 @@ spec:
 apiVersion: api/v1
 kind: Service
 metadata:
-  name: backend
+  name: postgres
 spec:
   ports:
-    - port: 8080
-      targetPort: 8080
+    - port: 5432
+      targetPort: 5432
   selector:
-    app: backend
+    app: postgres
   type: ClusterIP
