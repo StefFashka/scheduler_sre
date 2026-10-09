@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend
+  name: backend-api
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: backend
+      app: backend-api
   template:
     metadata:
       labels:
-        app: backend
+        app: backend-api
     spec:
       containers:
-        - name: backend
+        - name: backend-api
           image: uchebny-radar-backend:latest
           imagePullPolicy: IfNotPresent
           ports:
@@ -21,6 +21,11 @@ spec:
           env:
             - name: APP_ROLE
               value: "api"
+            - name: CORS_ALLOWED_ORIGINS
+              valueFrom:
+                configMapKeyRef:
+                  name: uchebny-radar-config
+                  key: CORS_ALLOWED_ORIGINS
             - name: APP_WORKER_ENABLED
               value: "false"
             - name: SPRING_DATASOURCE_URL
@@ -42,11 +47,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: backend
+  name: backend-api
 spec:
   ports:
     - port: 8080
       targetPort: 8080
   selector:
-    app: backend
+    app: backend-api
   type: ClusterIP
