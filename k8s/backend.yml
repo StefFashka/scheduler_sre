@@ -34,7 +34,7 @@ spec:
                   name: uchebny-radar-secret
                   key: POSTGRES_PASSWORD
 ---
-apiVersion: api/v1
+apiVersion: v1
 kind: Service
 metadata:
   name: backend
