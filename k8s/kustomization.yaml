@@ -10,9 +10,13 @@ resources:
   - frontend.yml
   - victoria-logs.yml
   - vector.yml
+  - grafana.yml
 
 configMapGenerator:
   - name: vector-config
     files:
       - vector.yaml=vector-conf.yaml
+  - name: grafana-datasources
+    files:
+      - datasources.yaml=grafana-datasources.yaml
 
