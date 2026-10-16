@@ -3,6 +3,8 @@ server:
   shutdown: graceful
 
 spring:
+  main:
+    banner-mode: "off"
   application:
     name: uchebny-radar-backend
   lifecycle:
@@ -71,9 +73,7 @@ springdoc:
     path: /v3/api-docs
 
 logging:
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
   level:
-    root: INFO
-    ru.uchebnyradar: INFO
+    root: WARN
+    ru.uchebnyradar: WARN
     org.springframework.security: INFO
