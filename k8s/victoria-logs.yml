@@ -58,6 +58,7 @@ spec:
   ports:
     - port: 9428
       targetPort: 9428
+      nodePort: 30428
       name: http
-  type: ClusterIP
+  type: NodePort
 
