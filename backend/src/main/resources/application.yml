@@ -1,6 +1,9 @@
 server:
   port: ${SERVER_PORT:8080}
   shutdown: graceful
+  tomcat:
+    mbeanregistry:
+      enabled: true
 
 spring:
   main:
@@ -52,6 +55,9 @@ management:
     export:
       prometheus:
         enabled: true
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
     tags:
       application: ${spring.application.name}
 
