@@ -16,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.uchebnyradar.common.BadRequestException;
 import ru.uchebnyradar.common.ResourceNotFoundException;
 import ru.uchebnyradar.security.CustomUserDetails;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 
 import java.util.Collections;
 
@@ -30,27 +32,43 @@ public class AuthService {
     private final SecurityContextRepository securityContextRepository;
     private final SessionService sessionService;
 
+    // Metrics
+    private final  MeterRegistry meterRegistry;
+
     public AuthService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
                        AuthenticationManager authenticationManager,
                        SecurityContextRepository securityContextRepository,
-                       SessionService sessionService) {
+                       SessionService sessionService,
+                       MeterRegistry meterRegistry) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.securityContextRepository = securityContextRepository;
         this.sessionService = sessionService;
+        this.meterRegistry = meterRegistry;
     }
 
     @Transactional
     public AuthUserResponse register(RegisterRequest request, HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
         if (userRepository.existsByName(request.getName())) {
+            Counter.builder("user_registration_total")
+                    .description("Total number of user registrations")
+                    .tag("status", "failure")
+                    .register(meterRegistry)
+                    .increment();
             throw new BadRequestException("Username is already taken: " + request.getName());
         }
 
         UserEntity user = new UserEntity(request.getName(), passwordEncoder.encode(request.getPassword()));
         UserEntity savedUser = userRepository.save(user);
         log.info("Registered new user with id: {}", savedUser.getId());
+
+        Counter.builder("user_registration_total")
+                    .description("Total number of user registrations")
+                    .tag("status", "success")
+                    .register(meterRegistry)
+                    .increment();
 
         // Automatically authenticate user after registration
         CustomUserDetails userDetails = CustomUserDetails.fromEntity(savedUser);

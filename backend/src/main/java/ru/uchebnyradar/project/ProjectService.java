@@ -7,6 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.uchebnyradar.auth.UserEntity;
 import ru.uchebnyradar.auth.UserRepository;
 import ru.uchebnyradar.common.ResourceNotFoundException;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Counter;
 
 import java.util.List;
 
@@ -18,9 +20,15 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
 
-    public ProjectService(ProjectRepository projectRepository, UserRepository userRepository) {
+    // Metrics
+    private final Counter projectsCreatedCounter;
+
+    public ProjectService(ProjectRepository projectRepository, UserRepository userRepository, MeterRegistry meterRegistry) {
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
+        this.projectsCreatedCounter = Counter.builder("projects_created_total")
+                .description("Number of projects created")
+                .register(meterRegistry);
     }
 
     @Transactional(readOnly = true)
@@ -47,6 +55,7 @@ public class ProjectService {
         ProjectEntity project = new ProjectEntity(owner, request.getName(), request.getDescription(), status);
         ProjectEntity saved = projectRepository.save(project);
         log.info("Created project id: {} for user id: {}", saved.getId(), userId);
+        projectsCreatedCounter.increment();
         return ProjectResponse.fromEntity(saved);
     }
 

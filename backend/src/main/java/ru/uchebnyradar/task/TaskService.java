@@ -7,6 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.uchebnyradar.common.ResourceNotFoundException;
 import ru.uchebnyradar.project.ProjectEntity;
 import ru.uchebnyradar.project.ProjectRepository;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Counter;
 
 import java.util.List;
 import java.util.Objects;
@@ -19,9 +21,17 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final ProjectRepository projectRepository;
 
-    public TaskService(TaskRepository taskRepository, ProjectRepository projectRepository) {
+    // Metrics
+    private final Counter tasksCompletedCounter;
+    private final MeterRegistry meterRegistry;
+
+    public TaskService(TaskRepository taskRepository, ProjectRepository projectRepository, MeterRegistry meterRegistry) {
         this.taskRepository = taskRepository;
         this.projectRepository = projectRepository;
+        this.meterRegistry = meterRegistry;
+        this.tasksCompletedCounter = Counter.builder("tasks_completed_total")
+                .description("Number of tasks completed")
+                .register(meterRegistry);
     }
 
     @Transactional(readOnly = true)
@@ -64,6 +74,13 @@ public class TaskService {
 
         TaskEntity saved = taskRepository.save(task);
         log.info("Created task id: {} in project id: {} by user id: {}", saved.getId(), projectId, userId);
+
+        Counter.builder("tasks_created_total")
+                .description("Number of tasks created")
+                .tags("priority", priority.name().toLowerCase())
+                .register(meterRegistry)
+                .increment();
+
         return TaskResponse.fromEntity(saved);
     }
 
@@ -78,9 +95,15 @@ public class TaskService {
         if (request.getDescription() != null) {
             task.setDescription(request.getDescription());
         }
+
+        // Metrics && status update
         if (request.getStatus() != null) {
+            if(request.getStatus() == TaskStatus.COMPLETED && task.getStatus() != TaskStatus.COMPLETED) {
+                tasksCompletedCounter.increment();
+            }
             task.setStatus(request.getStatus());
         }
+
         if (request.getPriority() != null) {
             task.setPriority(request.getPriority());
         }
