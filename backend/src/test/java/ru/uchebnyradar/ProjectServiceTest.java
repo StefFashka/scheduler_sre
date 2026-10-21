@@ -5,7 +5,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import ru.uchebnyradar.auth.UserEntity;
 import ru.uchebnyradar.auth.UserRepository;
 import ru.uchebnyradar.common.ResourceNotFoundException;
@@ -26,6 +29,9 @@ class ProjectServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Spy
+    private MeterRegistry meterRegistry = new SimpleMeterRegistry();
 
     @InjectMocks
     private ProjectService projectService;
