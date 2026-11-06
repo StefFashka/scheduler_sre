@@ -1,0 +1,68 @@
+groups:
+  - name: uchebny_radar_service_alerts
+    rules:
+      - alert: ApiHigh5xxErrorRate
+        expr: |
+          (
+            sum(rate(http_server_requests_seconds_count{status=~"5.."}[2m]))
+            /
+            sum(rate(http_server_requests_seconds_count[2m]))
+          ) > 0.05
+        for: 1m
+        labels:
+          severity: critical
+          service: backend-api
+          component: web
+        annotations:
+          summary: "High 5xx rate in API (> 5%): {{ $value | humanizePercentage }}"
+          command: "(sum(rate(http_server_requests_seconds_count{status=~\"5..\"}[2m]))/sum(rate(http_server_requests_seconds_count[2m]))) > 0.05"
+
+      - alert: UserRegistrationHighFailureRate
+        expr: |
+          (
+            sum(rate(user_registration_total{status="failure"}[3m]))
+            /
+            sum(rate(user_registration_total[3m]))
+          ) > 0.15
+        for: 1m
+        labels:
+          severity: warning
+          service: backend-api
+          component: auth
+        annotations:
+          summary: "High failure rate in user registration (> 15%): {{ $value | humanizePercentage }}"
+          command: "(sum(rate(user_registration_total{status=\"failure\"}[3m]))/sum(rate(user_registration_total[3m]))) > 0.15"
+
+  - name: uchebny_radar_runtime_alerts
+    rules:
+      - alert: HikariPoolExhaustion
+        expr: |
+          (
+            hikaricp_connections_pending{pool="HikariPool-1"} > 0
+            or
+            (hikaricp_connections_active{pool="HikariPool-1"} / hikaricp_connections_max{pool="HikariPool-1"}) > 0.85
+          )
+        for: 1m
+        labels:
+          severity: critical
+          service: backend-api
+          component: database
+        annotations:
+          summary: "Pull of HikariCP connections is almost exhausted: {{ $value | humanizePercentage }} active connections"
+          command: "(hikaricp_connections_pending{pool=\"HikariPool-1\"} > 0 or (hikaricp_connections_active{pool=\"HikariPool-1\"} / hikaricp_connections_max{pool=\"HikariPool-1\"}) > 0.85)"
+          
+      - alert: JvmHeapMemoryHighUsage
+        expr: |
+          (
+            sum(jvm_memory_used_bytes{area="heap"}) by (app, instance)
+            /
+            sum(jvm_memory_max_bytes{area="heap"} > 0) by (app, instance)
+          ) > 0.85
+        for: 2m
+        labels:
+          severity: warning
+          service: backend-api
+          component: jvm
+        annotations:
+          summary: "JVM Heap usage exceeded 85%: {{ $value | humanizePercentage }}"
+          command: "(sum(jvm_memory_used_bytes{area=\"heap\"}) by (app, instance)/sum(jvm_memory_max_bytes{area=\"heap\"} > 0) by (app, instance)) > 0.85"

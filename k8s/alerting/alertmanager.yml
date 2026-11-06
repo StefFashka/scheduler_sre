@@ -1,0 +1,57 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  receiver: 'telegram-critical'
+  group_by: ['alertname', 'service']
+  group_wait: 10s
+  group_interval: 30s
+  repeat_interval: 4h
+
+  routes:
+    # 1. Каскадная ветка: Критические алерты (CRITICAL)
+    - matchers:
+        - severity = "critical"
+      receiver: 'telegram-critical'
+      group_wait: 10s
+      repeat_interval: 1h
+
+    # 2. Каскадная ветка: Предупреждения (WARNING)
+    - matchers:
+        - severity = "warning"
+      receiver: 'telegram-warning'
+      group_wait: 30s
+      repeat_interval: 12h
+
+receivers:
+  # Канал критических сбоев
+  - name: 'telegram-critical'
+    telegram_configs:
+      - bot_token_file: '/etc/secrets/critical_token'
+        chat_id: 704462347
+        send_resolved: true
+        parse_mode: 'HTML'
+        message: |
+          {{ range .Alerts }}
+          {{ if eq .Status "firing" }}🔥 <b>[FIRING: {{ .Labels.severity | toUpper }}]</b>{{ else }}✅ <b>[RESOLVED]</b>{{ end }} <b>{{ .Labels.alertname }}</b>
+          <b>Service:</b> <code>{{ .Labels.service }}</code> ({{ .Labels.component }})
+          <b>Summary:</b> {{ .Annotations.summary }}
+          <b>Time:</b> {{ .StartsAt.Format "15:04:05 02.01.2006" }}
+          <b>VMUI Command:</b> <code>{{ .Annotations.command }}</code>
+          {{ end }}
+
+  # Канал предупреждений
+  - name: 'telegram-warning'
+    telegram_configs:
+      - bot_token_file: '/etc/secrets/warning_token'
+        chat_id: 704462347
+        send_resolved: true
+        parse_mode: 'HTML'
+        message: |
+          {{ range .Alerts }}
+          {{ if eq .Status "firing" }}⚠️ <b>[FIRING: {{ .Labels.severity | toUpper }}]</b>{{ else }}✅ <b>[RESOLVED]</b>{{ end }} <b>{{ .Labels.alertname }}</b>
+          <b>Service:</b> <code>{{ .Labels.service }}</code> ({{ .Labels.component }})
+          <b>Summary:</b> {{ .Annotations.summary }}
+          <b>Time:</b> {{ .StartsAt.Format "15:04:05 02.01.2006" }}
+          <b>VMUI Command:</b> <code>{{ .Annotations.command }}</code>
+          {{ end }}

@@ -11,6 +11,8 @@ resources:
   - victoria-logs.yml
   - vector.yml
   - grafana.yml
+  - alerting/alertmanager-deploy.yml
+  - alerting/vmalert-deploy.yml
 
 configMapGenerator:
   - name: vector-config
@@ -19,4 +21,15 @@ configMapGenerator:
   - name: grafana-datasources
     files:
       - datasources.yaml=grafana-datasources.yaml
-
+  - name: alertmanager-config
+    namespace: monitoring
+    files:
+      - alertmanager.yml=alerting/alertmanager.yml
+    options:
+      disableNameSuffixHash: true
+  - name: vmalert-rules
+    namespace: monitoring
+    files:
+      - rules.yml=alerting/rules.yml
+    options:
+      disableNameSuffixHash: true
