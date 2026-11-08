@@ -33,11 +33,17 @@ receivers:
         parse_mode: 'HTML'
         message: |
           {{ range .Alerts }}
-          {{ if eq .Status "firing" }}🔥 <b>[FIRING: {{ .Labels.severity | toUpper }}]</b>{{ else }}✅ <b>[RESOLVED]</b>{{ end }} <b>{{ .Labels.alertname }}</b>
+          {{ if eq .Status "firing" }}🔥 <b>[FIRING: {{ .Labels.severity | toUpper }}]</b> <b>{{ .Labels.alertname }}</b>
           <b>Service:</b> <code>{{ .Labels.service }}</code> ({{ .Labels.component }})
           <b>Summary:</b> {{ .Annotations.summary }}
           <b>Time:</b> {{ .StartsAt.Format "15:04:05 02.01.2006" }}
           <b>VMUI Command:</b> <code>{{ .Annotations.command }}</code>
+          {{ else }}✅ <b>[RESOLVED]</b> <b>{{ .Labels.alertname }}</b>
+          <b>Service:</b> <code>{{ .Labels.service }}</code> ({{ .Labels.component }})
+          <b>Status:</b> Метрика вернулась в норму, инцидент исчерпан.
+          <b>Time:</b> {{ .EndsAt.Format "15:04:05 02.01.2006" }}
+          <b>VMUI Command:</b> <code>{{ .Annotations.command }}</code>
+          {{ end }}
           {{ end }}
 
   # Канал предупреждений
@@ -49,9 +55,15 @@ receivers:
         parse_mode: 'HTML'
         message: |
           {{ range .Alerts }}
-          {{ if eq .Status "firing" }}⚠️ <b>[FIRING: {{ .Labels.severity | toUpper }}]</b>{{ else }}✅ <b>[RESOLVED]</b>{{ end }} <b>{{ .Labels.alertname }}</b>
+          {{ if eq .Status "firing" }}⚠️ <b>[FIRING: {{ .Labels.severity | toUpper }}]</b> <b>{{ .Labels.alertname }}</b>
           <b>Service:</b> <code>{{ .Labels.service }}</code> ({{ .Labels.component }})
           <b>Summary:</b> {{ .Annotations.summary }}
           <b>Time:</b> {{ .StartsAt.Format "15:04:05 02.01.2006" }}
           <b>VMUI Command:</b> <code>{{ .Annotations.command }}</code>
+          {{ else }}✅ <b>[RESOLVED]</b> <b>{{ .Labels.alertname }}</b>
+          <b>Service:</b> <code>{{ .Labels.service }}</code> ({{ .Labels.component }})
+          <b>Status:</b> Метрика вернулась в норму, инцидент исчерпан.
+          <b>Time:</b> {{ .EndsAt.Format "15:04:05 02.01.2006" }}
+          <b>VMUI Command:</b> <code>{{ .Annotations.command }}</code>
+          {{ end }}
           {{ end }}
