@@ -1,0 +1,868 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 100,
+      "panels": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "mappings": [],
+              "max": 100,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": null
+                  },
+                  {
+                    "color": "#EAB839",
+                    "value": 95
+                  },
+                  {
+                    "color": "green",
+                    "value": 99
+                  }
+                ]
+              },
+              "unit": "percent"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 6,
+            "w": 6,
+            "x": 0,
+            "y": 1
+          },
+          "id": 1,
+          "options": {
+            "minVizHeight": 75,
+            "minVizWidth": 75,
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showThresholdLabels": false,
+            "showThresholdMarkers": true,
+            "sizing": "auto"
+          },
+          "pluginVersion": "10.4.5",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "P4169E866C3094E38"
+              },
+              "expr": "(count_over_time(((clamp_max(sum(rate(http_server_requests_seconds_count{uri=~\"/api/.*\", status!~\"5..\"}[2m])) / sum(rate(http_server_requests_seconds_count{uri=~\"/api/.*\"}[2m])), 1) >= 0.99) and (histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{uri=~\"/api/.*\"}[2m])) by (le)) * 1000 <= 500))[1h:1m]) / count_over_time(sum(rate(http_server_requests_seconds_count{uri=~\"/api/.*\"}[2m]))[1h:1m])) * 100",
+              "legendFormat": "Combined SLA %",
+              "refId": "A"
+            }
+          ],
+          "title": "Combined Application SLA (Composite)",
+          "type": "gauge"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "mappings": [],
+              "max": 100,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": null
+                  },
+                  {
+                    "color": "green",
+                    "value": 99
+                  }
+                ]
+              },
+              "unit": "percent"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 6,
+            "w": 4,
+            "x": 6,
+            "y": 1
+          },
+          "id": 2,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "10.4.5",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "P4169E866C3094E38"
+              },
+              "expr": "(count_over_time((sum(rate(user_registration_total{status=\"success\"}[5m])) / sum(rate(user_registration_total[5m])) >= 0.95)[1h:1m]) / count_over_time(sum(rate(user_registration_total[5m]))[1h:1m])) * 100",
+              "legendFormat": "SLA 1 %",
+              "refId": "A"
+            }
+          ],
+          "title": "SLA 1: Registration SLA (Target: >=99%)",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "mappings": [],
+              "max": 100,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": null
+                  },
+                  {
+                    "color": "green",
+                    "value": 99.5
+                  }
+                ]
+              },
+              "unit": "percent"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 6,
+            "w": 5,
+            "x": 10,
+            "y": 1
+          },
+          "id": 3,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "10.4.5",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "P4169E866C3094E38"
+              },
+              "expr": "(count_over_time((clamp_max(sum(rate(http_server_requests_seconds_count{uri=~\"/api/.*\", status!~\"5..\"}[2m])) / sum(rate(http_server_requests_seconds_count{uri=~\"/api/.*\"}[2m])), 1) >= 0.99)[1h:1m]) / count_over_time(sum(rate(http_server_requests_seconds_count{uri=~\"/api/.*\"}[2m]))[1h:1m])) * 100",
+              "legendFormat": "SLA 2 %",
+              "refId": "A"
+            }
+          ],
+          "title": "SLA 2: API Availability SLA (Target: >=99.5%)",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red"
+                  },
+                  {
+                    "color": "green",
+                    "value": 98
+                  }
+                ]
+              },
+              "unit": "percent"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 6,
+            "w": 5,
+            "x": 15,
+            "y": 1
+          },
+          "id": 4,
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "P4169E866C3094E38"
+              },
+              "expr": "(count_over_time((histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{uri=~\"/api/.*\"}[2m])) by (le)) * 1000 <= 500)[1h:1m]) / count_over_time(sum(rate(http_server_requests_seconds_count{uri=~\"/api/.*\"}[2m]))[1h:1m])) * 100",
+              "legendFormat": "SLA 3 %",
+              "refId": "A"
+            }
+          ],
+          "title": "SLA 3: Latency SLA (Target: >=98%)",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red"
+                  },
+                  {
+                    "color": "green",
+                    "value": 95
+                  }
+                ]
+              },
+              "unit": "percent"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 6,
+            "w": 4,
+            "x": 20,
+            "y": 1
+          },
+          "id": 5,
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "P4169E866C3094E38"
+              },
+              "expr": "(count_over_time((rate(reminders_processed_total[5m]) > 0)[1h:1m]) / count_over_time(rate(reminders_processed_total[5m])[1h:1m])) * 100",
+              "legendFormat": "SLA 4 %",
+              "refId": "A"
+            }
+          ],
+          "title": "SLA 4: ReminderWorker SLA (Target: >=95%)",
+          "type": "stat"
+        }
+      ],
+      "title": "🎯 Соглашения об уровне обслуживания (SLA / Time-Based SLO — 1h Window)",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 1
+      },
+      "id": 101,
+      "panels": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "line"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": null
+                  },
+                  {
+                    "color": "green",
+                    "value": 95
+                  }
+                ]
+              },
+              "unit": "percent"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 2
+          },
+          "id": 6,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "P4169E866C3094E38"
+              },
+              "expr": "(sum(rate(user_registration_total{status=\"success\"}[5m])) / sum(rate(user_registration_total[5m]))) * 100",
+              "legendFormat": "Registration Success Rate",
+              "refId": "A"
+            }
+          ],
+          "title": "SLI 1: User Registration Success Rate [SLO >= 95%]",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "line"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": null
+                  },
+                  {
+                    "color": "green",
+                    "value": 99
+                  }
+                ]
+              },
+              "unit": "percent"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 2
+          },
+          "id": 7,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "P4169E866C3094E38"
+              },
+              "expr": "clamp_max(sum(rate(http_server_requests_seconds_count{uri=~\"/api/.*\", status!~\"5..\"}[2m])) / sum(rate(http_server_requests_seconds_count{uri=~\"/api/.*\"}[2m])), 1) * 100",
+              "legendFormat": "API Availability SLI",
+              "refId": "A"
+            }
+          ],
+          "title": "SLI 2: API Availability (% non-5xx) [SLO >= 99%]",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "thresholdsStyle": {
+                  "mode": "line"
+                }
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "red",
+                    "value": 500
+                  }
+                ]
+              },
+              "unit": "ms"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 10
+          },
+          "id": 8,
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "P4169E866C3094E38"
+              },
+              "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{uri=~\"/api/.*\"}[2m])) by (le)) * 1000",
+              "legendFormat": "p95 Latency",
+              "refId": "A"
+            }
+          ],
+          "title": "SLI 3: Response Latency p95 [SLO <= 500ms]",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "custom": {
+                "thresholdsStyle": {
+                  "mode": "line"
+                }
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red"
+                  },
+                  {
+                    "color": "green",
+                    "value": 0.01
+                  }
+                ]
+              },
+              "unit": "ops"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 10
+          },
+          "id": 9,
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "P4169E866C3094E38"
+              },
+              "expr": "rate(reminders_processed_total[5m])",
+              "legendFormat": "Reminders Processed Rate",
+              "refId": "A"
+            }
+          ],
+          "title": "SLI 4: ReminderWorker Processing Rate [SLO > 0 ops/sec]",
+          "type": "timeseries"
+        }
+      ],
+      "title": "📈 Индикаторы качества обслуживания (SLI) в реальном времени",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 2
+      },
+      "id": 102,
+      "panels": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "reqps"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 3
+          },
+          "id": 10,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "P4169E866C3094E38"
+              },
+              "expr": "sum(rate(http_server_requests_seconds_count{uri=~\"/api/.*\"}[1m])) by (uri)",
+              "legendFormat": "{{uri}}",
+              "refId": "A"
+            }
+          ],
+          "title": "RED Traffic: Requests per Second (RPS) by Endpoint",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P4169E866C3094E38"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "ops"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 3
+          },
+          "id": 11,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "P4169E866C3094E38"
+              },
+              "expr": "sum(rate(projects_total[1m]))",
+              "legendFormat": "Projects Created",
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "P4169E866C3094E38"
+              },
+              "expr": "sum(rate(tasks_total[1m])) by (priority)",
+              "legendFormat": "Tasks Created (priority: {{priority}})",
+              "refId": "B"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "P4169E866C3094E38"
+              },
+              "expr": "rate(reminders_processed_total[1m])",
+              "legendFormat": "Reminders Processed",
+              "refId": "C"
+            }
+          ],
+          "title": "Domain Entities Velocity: Projects & Tasks Created per Second",
+          "type": "timeseries"
+        }
+      ],
+      "title": "🚀 Трафик синтетического клиента (Пробера) и активность домена",
+      "type": "row"
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": [
+    "sla",
+    "sli",
+    "slo",
+    "prober",
+    "uchebny-radar"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s"
+    ]
+  },
+  "timezone": "",
+  "title": "Uchebny Radar — SLA, SLI & SLO (Full Reports/SLA Specification)",
+  "uid": "1",
+  "version": 5,
+  "weekStart": ""
+}
