@@ -85,6 +85,7 @@ public class SecurityConfig {
             )
             .authenticationProvider(authenticationProvider())
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/", "/api/version").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/auth/csrf").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login").permitAll()
                 .requestMatchers("/actuator/health/**", "/actuator/prometheus").permitAll()

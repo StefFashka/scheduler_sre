@@ -60,6 +60,8 @@ management:
         http.server.requests: true
     tags:
       application: ${spring.application.name}
+      version: ${APP_VERSION:v1.0.0}
+      pod: ${HOSTNAME:unknown}
 
 app:
   worker:
