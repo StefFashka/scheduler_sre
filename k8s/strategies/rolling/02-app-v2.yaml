@@ -1,8 +1,3 @@
-# ROLLING UPDATE — шаг 2: накатываем версию 2.
-# Меняем ТОЛЬКО поле VERSION у того же Deployment `my-app` и применяем файл.
-# Kubernetes запускает rolling update: поднимает новый под (maxSurge=1), ждёт его
-# Ready, гасит один старый — и так, пока все 6 подов не станут v2.0.0.
-# Сервис и HTTPRoute не трогаем — трафик как шёл на `my-app`, так и идёт.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -11,7 +6,7 @@ metadata:
   labels:
     app: my-app
 spec:
-  replicas: 6
+  replicas: 3
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -24,41 +19,48 @@ spec:
     metadata:
       labels:
         app: my-app
-        version: v2.0.0   # новая версия — во время раскатки старые поды (v1.0.0)
-                          # и новые (v2.0.0) различимы в метриках через relabeling
+        version: v2.0.0   # новая версия — во время раскатки поды v1.0.0 и v2.0.0 различимы в метриках
     spec:
       containers:
-        - name: my-app
-          image: containersol/k8s-deployment-strategies:latest
+        - name: backend-api
+          image: uchebny-radar-backend:latest
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
               containerPort: 8080
-            - name: probe
-              containerPort: 8086
-            - name: metrics
-              containerPort: 9101
           env:
-            - name: VERSION
-              value: v2.0.0
-          livenessProbe:
-            httpGet:
-              path: /live
-              port: probe
-            initialDelaySeconds: 5
-            periodSeconds: 5
+            - name: APP_ROLE
+              value: "api"
+            - name: APP_WORKER_ENABLED
+              value: "false"
+            - name: APP_VERSION
+              value: "v2.0.0"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://postgres.default.svc.cluster.local:5432/uchebny_radar"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "postgres"
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "pass"
           readinessProbe:
             httpGet:
-              path: /ready
-              port: probe
-            # Небольшая задержка готовности — чтобы смену версий было видно
-            # в `kubectl get pods -w` и на графике, а не мгновенно.
-            initialDelaySeconds: 10
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 15
             periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 25
+            periodSeconds: 10
           resources:
             requests:
-              cpu: 50m
-              memory: 64Mi
+              cpu: 100m
+              memory: 384Mi
             limits:
-              cpu: 200m
-              memory: 128Mi
+              cpu: 500m
+              memory: 768Mi
