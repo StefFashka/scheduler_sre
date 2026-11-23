@@ -27,15 +27,19 @@ def timed_request(session, method, url, **kwargs):
     try:
         resp = session.request(method, url, **kwargs)
         duration = time.time() - start
+
+        version = resp.headers.get("X-App-Version", "-")
+        pod = resp.headers.get("X-Pod-Name", "-")
+
         log.info(
-            "status=%-3s  endpoint=%-45s  duration=%.3fs",
-            resp.status_code, f"{method} {url.replace(BASE_URL, '')}", duration
+            "status=%-3s  endpoint=%-35s  ver=%-7s  pod=%-26s  duration=%.3fs",
+            resp.status_code, f"{method} {url.replace(BASE_URL, '')}", version, pod, duration
         )
         return resp, duration
     except requests.exceptions.RequestException as e:
         duration = time.time() - start
         log.error(
-            "status=ERR  endpoint=%-45s  duration=%.3fs  error=%s",
+            "status=ERR  endpoint=%-35s  duration=%.3fs  error=%s",
             f"{method} {url.replace(BASE_URL, '')}", duration, e
         )
         return None, duration
