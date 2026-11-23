@@ -10,19 +10,22 @@ resources:
   - frontend.yml
   - monitoring/victoria-logs.yml
   - monitoring/vector/vector.yml
-  - monitoring/gateway.yml
+  - monitoring/gateway.yaml
   - monitoring/grafana/grafana.yml
-  - monitoring/grafana/gateway.yml
   - alerting/alertmanager-deploy.yml
   - alerting/vmalert-deploy.yml
 
 configMapGenerator:
   - name: vector-config
     files:
-      - vector.yaml=vector-conf.yaml
+      - vector.yaml=monitoring/vector/vector-conf.yaml
+    options:
+      disableNameSuffixHash: true
   - name: grafana-datasources
     files:
-      - datasources.yaml=grafana-datasources.yaml
+      - datasources.yaml=monitoring/grafana/grafana-datasources.yaml
+    options:
+      disableNameSuffixHash: true
   - name: alertmanager-config
     namespace: monitoring
     files:
@@ -37,12 +40,15 @@ configMapGenerator:
       disableNameSuffixHash: true
   - name: grafana-dashboards-prov
     files:
-      - dashboards.yaml=grafana-dashboards.yaml
+      - dashboards.yaml=monitoring/grafana/grafana-dashboards.yaml
     options:
       disableNameSuffixHash: true
   - name: grafana-dashboards-files
     files:
-      - monitoring/dashboards
+      - monitoring/dashboards/application-runtime-dashboard.json
+      - monitoring/dashboards/grafana-dashboard.json
+      - monitoring/dashboards/postgresql-database-dashboard.json
+      - monitoring/dashboards/prober-sla-dashboard.json
     options:
       disableNameSuffixHash: true
 
