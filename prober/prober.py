@@ -6,8 +6,9 @@ import logging
 import os
 from datetime import datetime, timezone, timedelta
 
-BASE_URL = os.environ.get("PROBER_TARGET_URL", "http://localhost:8080")
-INTERVAL = int(os.environ.get("PROBER_INTERVAL", "30"))
+PROBER_TARGET_URL = input()
+BASE_URL = os.environ.get("PROBER_TARGET_URL", PROBER_TARGET_URL)
+INTERVAL = int(os.environ.get("PROBER_INTERVAL", "1"))
 
 logging.basicConfig(
     level=logging.INFO,

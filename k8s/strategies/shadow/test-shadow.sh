@@ -16,7 +16,7 @@ sleep 1
 
 echo "--- Sending 5 requests to Envoy Gateway ---"
 for i in {1..5}; do
-  curl -s "http://localhost:${LOCAL_PORT}/"
+  curl -s "http://localhost:${  }/"
   echo ""
 done
 
