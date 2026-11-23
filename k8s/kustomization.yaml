@@ -8,9 +8,11 @@ resources:
   - backend.yml
   - worker.yml
   - frontend.yml
-  - victoria-logs.yml
-  - vector.yml
-  - grafana.yml
+  - monitoring/victoria-logs.yml
+  - monitoring/vector/vector.yml
+  - monitoring/gateway.yml
+  - monitoring/grafana/grafana.yml
+  - monitoring/grafana/gateway.yml
   - alerting/alertmanager-deploy.yml
   - alerting/vmalert-deploy.yml
 
