@@ -17,7 +17,7 @@ metadata:
   namespace: deploy-demo
 spec:
   parentRefs:
-    - name: eg
+    - name: app-gateway
   rules:
     - matches:
         - headers:

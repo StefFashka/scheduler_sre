@@ -23,7 +23,7 @@ metadata:
     app: my-app
 spec:
   replicas: 2
-  strategy:
+  stratapp-gatewayy:
     type: RollingUpdate
     rollingUpdate:
       maxSurge: 1
@@ -93,7 +93,7 @@ metadata:
   name: my-app
 spec:
   parentRefs:
-    - name: eg
+    - name: app-gateway
   rules:
     - backendRefs:
         - name: my-app
