@@ -4,11 +4,22 @@ import random
 import string
 import logging
 import os
+import sys
 from datetime import datetime, timezone, timedelta
 
-PROBER_TARGET_URL = input()
-BASE_URL = os.environ.get("PROBER_TARGET_URL", PROBER_TARGET_URL)
-INTERVAL = int(os.environ.get("PROBER_INTERVAL", "1"))
+DEFAULT_URL = "http://192.168.49.2:31605"
+
+if len(sys.argv) > 1:
+    BASE_URL = sys.argv[1].rstrip("/")
+elif "PROBER_TARGET_URL" in os.environ:
+    BASE_URL = os.environ["PROBER_TARGET_URL"].rstrip("/")
+elif sys.stdin.isatty():
+    val = input(f"Target URL [Enter for {DEFAULT_URL}]: ").strip()
+    BASE_URL = val.rstrip("/") if val else DEFAULT_URL
+else:
+    BASE_URL = DEFAULT_URL
+
+INTERVAL = float(os.environ.get("PROBER_INTERVAL", "1"))
 
 logging.basicConfig(
     level=logging.INFO,
