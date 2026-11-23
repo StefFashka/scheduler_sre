@@ -22,12 +22,11 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: my-app-v2
-  namespace: deploy-demo
   labels:
     app: my-app
     version: v2.0.0
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: my-app
@@ -46,6 +45,8 @@ spec:
             - name: http
               containerPort: 8080
           env:
+            - name: JAVA_TOOL_OPTIONS
+              value: "-Xms128m -Xmx256m -XX:+UseSerialGC"
             - name: APP_ROLE
               value: "api"
             - name: APP_WORKER_ENABLED
@@ -62,17 +63,21 @@ spec:
               value: "postgres"
             - name: SPRING_DATASOURCE_PASSWORD
               value: "pass"
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            failureThreshold: 30
+            periodSeconds: 5
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
               port: 8080
-            initialDelaySeconds: 15
             periodSeconds: 5
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
               port: 8080
-            initialDelaySeconds: 25
             periodSeconds: 10
           resources:
             requests:
