@@ -40,10 +40,22 @@ spec:
             - name: datasources
               mountPath: /etc/grafana/provisioning/datasources
               readOnly: true
+            - name: dashboards-prov
+              mountPath: /etc/grafana/provisioning/dashboards
+              readOnly: true
+            - name: dashboards-files
+              mountPath: /var/lib/grafana/dashboards
+              readOnly: true
       volumes:
         - name: datasources
           configMap:
             name: grafana-datasources
+        - name: dashboards-prov
+          configMap:
+            name: grafana-dashboards-prov
+        - name: dashboards-files
+          configMap:
+            name: grafana-dashboards-files
 ---
 apiVersion: v1
 kind: Service
