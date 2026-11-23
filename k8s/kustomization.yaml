@@ -33,3 +33,14 @@ configMapGenerator:
       - rules.yml=alerting/rules.yml
     options:
       disableNameSuffixHash: true
+  - name: grafana-dashboards-prov
+    files:
+      - dashboards.yaml=grafana-dashboards.yaml
+    options:
+      disableNameSuffixHash: true
+  - name: grafana-dashboards-files
+    files:
+      - monitoring/dashboards
+    options:
+      disableNameSuffixHash: true
+
