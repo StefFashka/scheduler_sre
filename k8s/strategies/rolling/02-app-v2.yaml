@@ -18,7 +18,11 @@ spec:
     metadata:
       labels:
         app: my-app
-        version: v2.0.0   # новая версия — во время раскатки поды v1.0.0 и v2.0.0 различимы в метриках
+        version: v2.0.0
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/actuator/prometheus"
     spec:
       containers:
         - name: backend-api
