@@ -6,7 +6,7 @@ sleep 1
 
 EG_NS="envoy-gateway-system"
 LOCAL_PORT="8890"
-SVC="$(kubectl get svc -n "$EG_NS" -l gateway.envoyproxy.io/owning-gateway-name=eg -o jsonpath='{.items[0].metadata.name}')"
+SVC="$(kubectl get svc -n "$EG_NS" -l gateway.envoyproxy.io/owning-gateway-name=app-gateway -o jsonpath='{.items[0].metadata.name}')"
 
 kubectl port-forward -n "$EG_NS" "svc/$SVC" "${LOCAL_PORT}:80" >/dev/null 2>&1 &
 PF_PID=$!
@@ -22,4 +22,4 @@ done
 
 sleep 2
 echo "--- Checking v2 logs to verify mirrored requests arrived ---"
-kubectl logs deployment/my-app-v2 -n deploy-demo --tail=10
+kubectl logs deployment/my-app-v2 -n default --tail=10

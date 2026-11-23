@@ -3,7 +3,7 @@ set -euo pipefail
 
 EG_NS="envoy-gateway-system"
 LOCAL_PORT="8889"
-SVC="$(kubectl get svc -n "$EG_NS" -l gateway.envoyproxy.io/owning-gateway-name=eg -o jsonpath='{.items[0].metadata.name}')"
+SVC="$(kubectl get svc -n "$EG_NS" -l gateway.envoyproxy.io/owning-gateway-name=app-gateway -o jsonpath='{.items[0].metadata.name}')"
 
 kubectl port-forward -n "$EG_NS" "svc/$SVC" "${LOCAL_PORT}:80" >/dev/null 2>&1 &
 PF_PID=$!
