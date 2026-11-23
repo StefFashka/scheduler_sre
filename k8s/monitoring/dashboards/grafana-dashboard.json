@@ -42,7 +42,7 @@
         {
           "refId": "A",
           "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-          "expr": "sum(rate(http_server_requests_seconds_count{namespace=\"default\"}[2m])) by (version)",
+          "expr": "sum(rate(http_server_requests_seconds_count{namespace=\"default\"}[1m])) by (version)",
           "legendFormat": "{{version}}"
         }
       ]
@@ -71,7 +71,7 @@
         {
           "refId": "A",
           "datasource": { "type": "prometheus", "uid": "P4169E866C3094E38" },
-          "expr": "100 * sum(rate(http_server_requests_seconds_count{namespace=\"default\",version=\"v2.0.0\"}[2m])) / sum(rate(http_server_requests_seconds_count{namespace=\"default\"}[2m]))",
+          "expr": "100 * sum(rate(http_server_requests_seconds_count{namespace=\"default\",version=\"v2.0.0\"}[1m])) / sum(rate(http_server_requests_seconds_count{namespace=\"default\"}[1m]))",
           "legendFormat": "v2 доля"
         }
       ]
