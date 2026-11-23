@@ -1,5 +1,5 @@
 # ServiceMonitor для kube-prometheus-stack: Prometheus Operator сам найдёт все
-# сервисы с меткой app=my-app в namespace deploy-demo и будет снимать метрики
+# сервисы с меткой app=my-app в namespace default и будет снимать метрики
 # с именованного порта `metrics` (:9101, путь /metrics) каждые 15 секунд.
 # Один ServiceMonitor покрывает my-app, my-app-v1 и my-app-v2 — у всех метка app=my-app.
 #
@@ -14,7 +14,7 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: my-app
-  namespace: deploy-demo
+  namespace: default
   labels:
     app: my-app
 spec:
@@ -23,7 +23,7 @@ spec:
       app: my-app
   namespaceSelector:
     matchNames:
-      - deploy-demo
+      - default
   endpoints:
     - port: metrics
       path: /actuator/prometheus
