@@ -17,11 +17,13 @@ spec:
     - name: metrics
       port: 8080
       targetPort: 8080
+  type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: my-app-v1
+  namespace: default
   labels:
     app: my-app
     version: v1.0.0
